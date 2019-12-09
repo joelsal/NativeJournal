@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button, FlatList, Image } from 'react-native';
 //import { ListItem } from 'react-native-elements';
 import * as SQLite from 'expo-sqlite';
 
-const db = SQLite.openDatabase('test.db');
+const db = SQLite.openDatabase('ask.db');
 
 export default function Home(props) {
     navigationOptions = {
@@ -19,7 +19,7 @@ export default function Home(props) {
 
     useEffect(() => {
       db.transaction(tx => {
-        tx.executeSql('create table if not exists test (id integer primary key not null, title text, text text, date text, image text);');
+        tx.executeSql('create table if not exists ask (id integer primary key not null, title text, text text, date text, image text, address text);');
       });
       return() => {
         journalRefresh.remove();
@@ -28,7 +28,7 @@ export default function Home(props) {
 
     const updateList = () => {
       db.transaction(tx => {
-        tx.executeSql('select * from test;', [], (_, { rows }) =>
+        tx.executeSql('select * from ask;', [], (_, { rows }) =>
           setData(rows._array)
         );
       });
@@ -57,13 +57,15 @@ export default function Home(props) {
       </View>
       <View style={{flex: 8, width: "95%"}}>
         <Text style={{fontSize: 20}}>JOURNAL</Text>
-        <FlatList 
+        <FlatList
+          inverted={true}
           keyExtractor={item => item.id.toString()} 
           renderItem={({item}) => <View style={styles.listcontainer}>
                                     <Text style={styles.listtitle}>{item.title}</Text>
                                     <Text style={styles.listtext}>{item.text}</Text>
                                     <Text style={styles.listdate}>{item.date}</Text>
                                     <Image style={styles.listimage} source={{uri: item.image}} />
+                                    <Text style={styles.listaddress}>{item.address}</Text>
                                   </View>}
           data={data}
           ItemSeparatorComponent={listSeparator}
@@ -97,6 +99,11 @@ const styles = StyleSheet.create({
     paddingLeft: 3
   },
   listdate: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    paddingLeft: 3
+  },
+  listaddress: {
     fontSize: 12,
     fontStyle: 'italic',
     paddingLeft: 3
