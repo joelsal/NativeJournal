@@ -6,7 +6,7 @@ import * as Location from 'expo-location';
 import { Camera } from 'expo-camera';
 import moment from 'moment';
 
-const db = SQLite.openDatabase('ask.db');
+const db = SQLite.openDatabase('wet.db');
 
 export default function NewEntry(props) {
   const [title, setTitle] = useState('');
@@ -17,6 +17,10 @@ export default function NewEntry(props) {
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
   const [showLocation, setShowLocation] = useState(false);
+
+  const [weather, setWeather] = useState('');
+  const [icon, setIcon] = useState('');
+  const [showWeather, setShowWeather] = useState(false);
 
   const [cameraModal, setCameraModal] = useState(false);
   const [image, setImage] = useState('');
@@ -60,12 +64,32 @@ export default function NewEntry(props) {
     });
   }
 
+  const getWeather = () => {
+    const url = 'http://api.openweathermap.org/data/2.5/weather?lat=' + latitude + '&lon=' + longitude + '&units=metric&appid=3fe10118426166722c3f50c85e4ef25a'
+    fetch(url)
+    .then((response) => response.json())
+    .then((responseJson) => {
+      setWeather(responseJson.weather[0].main);
+      setIcon('http://openweathermap.org/img/wn/' + responseJson.weather[0].icon + '.png')
+    });
+  }
+
   const addLocation = () => {
     setShowLocation(!showLocation);
     if (showLocation === true) {
       setAddress('');
     } else {
       getAddress();
+    }
+  }
+
+  const addWeather = () => {
+    setShowWeather(!showWeather);
+    if (showWeather === true) {
+      setWeather('');
+      setIcon('');
+    } else {
+      getWeather();
     }
   }
 
@@ -81,14 +105,14 @@ export default function NewEntry(props) {
 
   const addEntry = () => {
       db.transaction(tx => {
-        tx.executeSql('insert into ask (title, text, date, image, address) values (?, ?, ?, ?, ?);', [title, text, date, image, address]);
+        tx.executeSql('insert into wet (title, text, date, image, address, weather, icon) values (?, ?, ?, ?, ?, ?, ?);', [title, text, date, image, address, weather, icon]);
       }, console.log("An error occured..."), updateList
     )
   }
 
   const updateList = () => {
     db.transaction(tx => {
-      tx.executeSql('select * from ask;', [], (_, { rows }) =>
+      tx.executeSql('select * from wet;', [], (_, { rows }) =>
         console.log(rows._array)
       );
     });
@@ -116,8 +140,9 @@ export default function NewEntry(props) {
         <Switch onValueChange={addLocation} value={showLocation} />
       </View>
       <View style={{flex: 1, flexDirection: 'row'}}>
-        <Text>Include weather?</Text>
-        <Switch />
+        <Text>Include weather? {weather}</Text>
+        <Image style={{width: 50, height: 50}} source={{uri: icon}} />
+        <Switch onValueChange={addWeather} value={showWeather} />
       </View>
       <View style={{flex: 1, alignItems: 'center'}}>
           <Button title="TAKE A PICTURE" onPress={() => toggleCameraModal(true)} />

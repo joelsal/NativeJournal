@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button, FlatList, Image } from 'react-native';
 //import { ListItem } from 'react-native-elements';
 import * as SQLite from 'expo-sqlite';
 
-const db = SQLite.openDatabase('ask.db');
+const db = SQLite.openDatabase('wet.db');
 
 export default function Home(props) {
     navigationOptions = {
@@ -19,7 +19,7 @@ export default function Home(props) {
 
     useEffect(() => {
       db.transaction(tx => {
-        tx.executeSql('create table if not exists ask (id integer primary key not null, title text, text text, date text, image text, address text);');
+        tx.executeSql('create table if not exists wet (id integer primary key not null, title text, text text, date text, image text, address text, weather text, icon text);');
       });
       return() => {
         journalRefresh.remove();
@@ -28,7 +28,7 @@ export default function Home(props) {
 
     const updateList = () => {
       db.transaction(tx => {
-        tx.executeSql('select * from ask;', [], (_, { rows }) =>
+        tx.executeSql('select * from wet;', [], (_, { rows }) =>
           setData(rows._array)
         );
       });
@@ -66,6 +66,8 @@ export default function Home(props) {
                                     <Text style={styles.listdate}>{item.date}</Text>
                                     <Image style={styles.listimage} source={{uri: item.image}} />
                                     <Text style={styles.listaddress}>{item.address}</Text>
+                                    <Text style={styles.listweather}>{item.weather}</Text>
+                                    <Image style={styles.listicon} source={{uri: item.icon}}/>
                                   </View>}
           data={data}
           ItemSeparatorComponent={listSeparator}
@@ -117,5 +119,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#003067'
+  },
+  listweather: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    paddingLeft: 3
+  },
+  listicon: {
+    width: 50,
+    height: 50
   }
 });
