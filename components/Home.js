@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, FlatList, Image, Modal, Dimensions } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import ImageZoom from 'react-native-image-pan-zoom';
 
 const db = SQLite.openDatabase('wet.db');
 
@@ -90,8 +91,13 @@ export default function Home(props) {
       </View>
 
       <Modal visible={imageModal} onRequestClose={() => setImageModal(!imageModal)}>
-        <View>
-          <Image style={styles.modalImage} source={{uri: modalImage}} />
+        <View style={{backgroundColor: '#000000'}}>
+          <ImageZoom cropWidth={Dimensions.get('window').width}
+                     cropHeight={Dimensions.get('window').height}
+                     imageWidth={Dimensions.get('window').width}
+                     imageHeight={Dimensions.get('window').height}>
+            <Image style={styles.modalImage} source={{uri: modalImage}} />
+          </ImageZoom>
         </View>
       </Modal>
     </View>
