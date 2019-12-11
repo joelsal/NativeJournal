@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, FlatList, Image } from 'react-native';
-//import { ListItem } from 'react-native-elements';
+import { StyleSheet, Text, View, Button, FlatList, Image, Modal, Dimensions } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const db = SQLite.openDatabase('wet.db');
 
@@ -12,6 +12,9 @@ export default function Home(props) {
 
     const {navigate} = props.navigation;
     const [data, setData] = useState([]);
+
+    const [imageModal, setImageModal] = useState(false);
+    const [modalImage, setModalImage] = useState('');
 
     const journalRefresh = props.navigation.addListener('willFocus', () => {
       updateList();
@@ -32,6 +35,16 @@ export default function Home(props) {
           setData(rows._array)
         );
       });
+    }
+
+    const toggleImageModal = (id) => {
+      db.transaction(tx => {
+        tx.executeSql('select * from wet where id = ?;', [id], (__, { rows }) => {
+          const picture = rows._array[0].image;
+          setModalImage(picture);
+        })
+      })
+      setImageModal(!imageModal)
     }
 
     const listSeparator = () => {
@@ -64,7 +77,9 @@ export default function Home(props) {
                                     <Text style={styles.listtitle}>{item.title}</Text>
                                     <Text style={styles.listtext}>{item.text}</Text>
                                     <Text style={styles.listdate}>{item.date}</Text>
-                                    <Image style={styles.listimage} source={{uri: item.image}} />
+                                    <TouchableOpacity onPress={() => toggleImageModal(item.id)}>
+                                      <Image style={styles.listimage} source={{uri: item.image}} />
+                                    </TouchableOpacity>
                                     <Text style={styles.listaddress}>{item.address}</Text>
                                     <Text style={styles.listweather}>{item.weather}</Text>
                                     <Image style={styles.listicon} source={{uri: item.icon}}/>
@@ -73,6 +88,12 @@ export default function Home(props) {
           ItemSeparatorComponent={listSeparator}
         />
       </View>
+
+      <Modal visible={imageModal} onRequestClose={() => setImageModal(!imageModal)}>
+        <View>
+          <Image style={styles.modalImage} source={{uri: modalImage}} />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -128,5 +149,10 @@ const styles = StyleSheet.create({
   listicon: {
     width: 50,
     height: 50
+  },
+  modalImage: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    resizeMode: 'contain'
   }
 });

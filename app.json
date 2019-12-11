@@ -23,6 +23,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "android": {
+      "package": "com.joelsal.NativeJournal"
+    },
     "ios": {
       "supportsTablet": true
     }
