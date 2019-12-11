@@ -5,8 +5,24 @@ import Home from './components/Home';
 import NewEntry from './components/NewEntry';
 
 const MyApp = createStackNavigator({
-  Home: Home,
-  NewEntry: NewEntry,
+  Home: {
+    screen: Home,
+    navigationOptions: {
+      title: "Native Journal",
+      headerTitleStyle: {
+        color: '#357F82'
+      },
+      headerStyle: {
+        backgroundColor: '#7ACACF'
+      }
+    }
+  },
+  NewEntry: {
+    screen: NewEntry,
+    navigationOptions: {
+      title: "Add a new entry"
+    }
+  },
 });
 
 const AppContainer = createAppContainer(MyApp);

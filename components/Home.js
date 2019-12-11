@@ -40,7 +40,7 @@ export default function Home(props) {
 
     const toggleImageModal = (id) => {
       db.transaction(tx => {
-        tx.executeSql('select * from wet where id = ?;', [id], (__, { rows }) => {
+        tx.executeSql('select * from wet where id = ?;', [id], (_, { rows }) => {
           const picture = rows._array[0].image;
           setModalImage(picture);
         })
@@ -53,8 +53,8 @@ export default function Home(props) {
         <View
           style={{
             height: 5,
-            width: "80%",
-            backgroundColor: "#fff",
+            width: "95%",
+            backgroundColor: "#7ACACF",
             marginLeft: "10%"
           }}
         />
@@ -63,9 +63,6 @@ export default function Home(props) {
 
   return (
     <View style={styles.container}>
-      <View style={{flex: 1}}>
-        <Text>Welcome back!</Text>
-      </View>
       <View style={{flex: 1}}>
         <Button title="New Entry" onPress={() => navigate('NewEntry')} />
       </View>
@@ -76,14 +73,39 @@ export default function Home(props) {
           keyExtractor={item => item.id.toString()} 
           renderItem={({item}) => <View style={styles.listcontainer}>
                                     <Text style={styles.listtitle}>{item.title}</Text>
-                                    <Text style={styles.listtext}>{item.text}</Text>
+                                    { item.text != "" ?
+                                      (
+                                      <Text style={styles.listtext}>{item.text}</Text>
+                                      ) : (
+                                        <View></View>
+                                      )}
                                     <Text style={styles.listdate}>{item.date}</Text>
-                                    <TouchableOpacity onPress={() => toggleImageModal(item.id)}>
-                                      <Image style={styles.listimage} source={{uri: item.image}} />
-                                    </TouchableOpacity>
-                                    <Text style={styles.listaddress}>{item.address}</Text>
-                                    <Text style={styles.listweather}>{item.weather}</Text>
-                                    <Image style={styles.listicon} source={{uri: item.icon}}/>
+                                    { item.image != "" ?
+                                      (
+                                      <TouchableOpacity onPress={() => toggleImageModal(item.id)}>
+                                        <Image style={styles.listimage} source={{uri: item.image}} />
+                                      </TouchableOpacity>
+                                      ) : (
+                                        <View></View>
+                                      )}
+                                    { item.address != "" ?
+                                      (
+                                      <Text style={styles.listaddress}>{item.address}</Text>
+                                      ) : (
+                                        <View></View>
+                                      )}
+                                    { item.weather != "" ?
+                                      (
+                                      <Text style={styles.listweather}>{item.weather}</Text>
+                                      ) : (
+                                        <View></View>
+                                      )}
+                                    { item.icon != "" ?
+                                      (
+                                      <Image style={styles.listicon} source={{uri: item.icon}}/>
+                                      ) : (
+                                        <View></View>
+                                      )}
                                   </View>}
           data={data}
           ItemSeparatorComponent={listSeparator}
@@ -104,17 +126,15 @@ export default function Home(props) {
   );
 }
 
-Home.navigationOptions = ({navigate}) => ({title: 'Home'});
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#7ACACF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   listcontainer: {
-    backgroundColor: '#ECA6FF',
+    backgroundColor: '#BCFAFF',
     alignItems: 'stretch',
     justifyContent: 'center',
   },
