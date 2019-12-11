@@ -179,7 +179,7 @@ export default function NewEntry(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#4D4D4D',
     alignItems: 'center',
     justifyContent: 'center',
   },

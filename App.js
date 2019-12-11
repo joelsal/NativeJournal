@@ -10,17 +10,23 @@ const MyApp = createStackNavigator({
     navigationOptions: {
       title: "Native Journal",
       headerTitleStyle: {
-        color: '#357F82'
+        color: '#000000'
       },
       headerStyle: {
-        backgroundColor: '#7ACACF'
+        backgroundColor: '#CCCCCC'
       }
     }
   },
   NewEntry: {
     screen: NewEntry,
     navigationOptions: {
-      title: "Add a new entry"
+      title: "Add a new entry",
+      headerTitleStyle: {
+        color: '#000000'
+      },
+      headerStyle: {
+        backgroundColor: '#CCCCCC'
+      }
     }
   },
 });

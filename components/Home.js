@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, FlatList, Image, Modal, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Modal, Dimensions, Alert } from 'react-native';
 import * as SQLite from 'expo-sqlite';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import ImageZoom from 'react-native-image-pan-zoom';
+import { Button } from 'react-native-elements';
 
 const db = SQLite.openDatabase('wet.db');
 
@@ -30,6 +31,20 @@ export default function Home(props) {
       }
     }, []);
 
+    const deleteEntry = (id) => {
+      Alert.alert(
+        'Warning',
+        'Are you sure you want to delete this entry?',
+        [
+          {text: 'YES', onPress: () => db.transaction(tx => {
+                                         tx.executeSql('delete from wet where id = ?;', [id]);
+                                       }, null, updateList
+                                       )},
+          {text: 'NO', onPress: () => console.log('NO was pressed')},
+        ]
+      )
+    }
+
     const updateList = () => {
       db.transaction(tx => {
         tx.executeSql('select * from wet;', [], (_, { rows }) =>
@@ -54,7 +69,7 @@ export default function Home(props) {
           style={{
             height: 5,
             width: "95%",
-            backgroundColor: "#7ACACF",
+            backgroundColor: "#4D4D4D",
             marginLeft: "10%"
           }}
         />
@@ -63,49 +78,50 @@ export default function Home(props) {
 
   return (
     <View style={styles.container}>
-      <View style={{flex: 1}}>
-        <Button title="New Entry" onPress={() => navigate('NewEntry')} />
+      <View style={styles.newentrybuttonview}>
+        <Button title="ADD A NEW ENTRY" raised={true} buttonStyle={styles.newentrybutton} titleStyle={styles.newentrybuttontitle} onPress={() => navigate('NewEntry')} />
       </View>
       <View style={{flex: 8, width: "95%"}}>
-        <Text style={{fontSize: 20}}>JOURNAL</Text>
         <FlatList
           inverted={true}
           keyExtractor={item => item.id.toString()} 
           renderItem={({item}) => <View style={styles.listcontainer}>
-                                    <Text style={styles.listtitle}>{item.title}</Text>
-                                    { item.text != "" ?
-                                      (
-                                      <Text style={styles.listtext}>{item.text}</Text>
-                                      ) : (
-                                        <View></View>
-                                      )}
-                                    <Text style={styles.listdate}>{item.date}</Text>
-                                    { item.image != "" ?
-                                      (
-                                      <TouchableOpacity onPress={() => toggleImageModal(item.id)}>
-                                        <Image style={styles.listimage} source={{uri: item.image}} />
-                                      </TouchableOpacity>
-                                      ) : (
-                                        <View></View>
-                                      )}
-                                    { item.address != "" ?
-                                      (
-                                      <Text style={styles.listaddress}>{item.address}</Text>
-                                      ) : (
-                                        <View></View>
-                                      )}
-                                    { item.weather != "" ?
-                                      (
-                                      <Text style={styles.listweather}>{item.weather}</Text>
-                                      ) : (
-                                        <View></View>
-                                      )}
-                                    { item.icon != "" ?
-                                      (
-                                      <Image style={styles.listicon} source={{uri: item.icon}}/>
-                                      ) : (
-                                        <View></View>
-                                      )}
+                                    <TouchableWithoutFeedback onLongPress={() => deleteEntry(item.id)}>
+                                      <Text style={styles.listtitle}>{item.title}</Text>
+                                      { item.text != "" ?
+                                        (
+                                        <Text style={styles.listtext}>{item.text}</Text>
+                                        ) : (
+                                          <View></View>
+                                        )}
+                                      <Text style={styles.listdate}>{item.date}</Text>
+                                      { item.image != "" ?
+                                        (
+                                        <TouchableOpacity onPress={() => toggleImageModal(item.id)}>
+                                          <Image style={styles.listimage} source={{uri: item.image}} />
+                                        </TouchableOpacity>
+                                        ) : (
+                                          <View></View>
+                                        )}
+                                      { item.address != "" ?
+                                        (
+                                        <Text style={styles.listaddress}>{item.address}</Text>
+                                        ) : (
+                                          <View></View>
+                                        )}
+                                      { item.weather != "" ?
+                                        (
+                                        <Text style={styles.listweather}>{item.weather}</Text>
+                                        ) : (
+                                          <View></View>
+                                        )}
+                                      { item.icon != "" ?
+                                        (
+                                        <Image style={styles.listicon} source={{uri: item.icon}}/>
+                                        ) : (
+                                          <View></View>
+                                        )}
+                                    </TouchableWithoutFeedback>
                                   </View>}
           data={data}
           ItemSeparatorComponent={listSeparator}
@@ -129,12 +145,23 @@ export default function Home(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#7ACACF',
+    backgroundColor: '#4D4D4D',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  newentrybuttonview: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-around'
+  },
+  newentrybutton: {
+    backgroundColor: '#00BF00'
+  },
+  newentrybuttontitle: {
+    color: '#00FF00'
+  },
   listcontainer: {
-    backgroundColor: '#BCFAFF',
+    backgroundColor: '#CCCCCC',
     alignItems: 'stretch',
     justifyContent: 'center',
   },
