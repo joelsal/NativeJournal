@@ -5,7 +5,7 @@ import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture
 import ImageZoom from 'react-native-image-pan-zoom';
 import { Button } from 'react-native-elements';
 
-const db = SQLite.openDatabase('wet.db');
+const db = SQLite.openDatabase('data.db');
 
 export default function Home(props) {
     navigationOptions = {
@@ -24,7 +24,7 @@ export default function Home(props) {
 
     useEffect(() => {
       db.transaction(tx => {
-        tx.executeSql('create table if not exists wet (id integer primary key not null, title text, text text, date text, image text, address text, weather text, icon text);');
+        tx.executeSql('create table if not exists data (id integer primary key not null, title text, text text, date text, image text, address text, city text, weather text, icon text, temp text);');
       });
       return() => {
         journalRefresh.remove();
@@ -37,7 +37,7 @@ export default function Home(props) {
         'Are you sure you want to delete this entry?',
         [
           {text: 'YES', onPress: () => db.transaction(tx => {
-                                         tx.executeSql('delete from wet where id = ?;', [id]);
+                                         tx.executeSql('delete from data where id = ?;', [id]);
                                        }, null, updateList
                                        )},
           {text: 'NO', onPress: () => console.log('NO was pressed')},
@@ -47,7 +47,7 @@ export default function Home(props) {
 
     const updateList = () => {
       db.transaction(tx => {
-        tx.executeSql('select * from wet;', [], (_, { rows }) =>
+        tx.executeSql('select * from data;', [], (_, { rows }) =>
           setData(rows._array)
         );
       });
@@ -55,7 +55,7 @@ export default function Home(props) {
 
     const toggleImageModal = (id) => {
       db.transaction(tx => {
-        tx.executeSql('select * from wet where id = ?;', [id], (_, { rows }) => {
+        tx.executeSql('select * from data where id = ?;', [id], (_, { rows }) => {
           const picture = rows._array[0].image;
           setModalImage(picture);
         })
@@ -103,15 +103,15 @@ export default function Home(props) {
                                         ) : (
                                           <View></View>
                                         )}
-                                      { item.address != "" ?
+                                      { item.address != "" || item.city != "" ?
                                         (
-                                        <Text style={styles.listaddress}>{item.address}</Text>
+                                        <Text style={styles.listaddress}>{item.address}, {item.city}</Text>
                                         ) : (
                                           <View></View>
                                         )}
-                                      { item.weather != "" ?
+                                      { item.weather != "" || item.temp != "" ?
                                         (
-                                        <Text style={styles.listweather}>{item.weather}</Text>
+                                        <Text style={styles.listweather}>{item.weather} {item.temp}°C</Text>
                                         ) : (
                                           <View></View>
                                         )}
